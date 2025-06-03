@@ -1,0 +1,52 @@
+schema_version = "1.0.0"
+
+id = "OrbitSnap"
+version = "0.1.0"
+name = "Orbit Snap"
+tagline = "capture mult angle screenshots"
+maintainer = "Kaede Makimura<email@address.com>"
+
+# "add-on" か "theme" のみサポート
+type = "add-on"
+
+# オプション：ソース、サポート、ドキュメントなどのリンクがあればここに記述する
+# website = "https://extensions.blender.org/add-ons/my-example-package/"
+
+# Blender や server でカテゴリ分けするのに使われるタグ
+# https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
+tags = ["3D View"]
+
+blender_version_min = "4.2.0"
+
+# https://spdx.org/licenses/ ("SPDX: プリフィックスを指定) に適合するライセンス
+# https://docs.blender.org/manual/en/dev/advanced/extensions/licenses.html
+license = [
+  "SPDX:MIT",
+]
+# オプション：いくつかのライセンスで要求される
+# copyright = [
+#   "2025 Kaede Makimura"
+# ]
+
+# オプション：バンドルするサードパーティ Python モジュール
+# https://docs.blender.org/manual/en/dev/advanced/extensions/python_wheels.html
+wheels = [
+  "./wheels/pillow-11.2.1-cp311-cp311-win_amd64.whl"
+]
+
+# # オプション：アドオンが利用するリソースを列挙する
+# # * files (ファイルシステムへのアクセス)
+# # * network (インターネットアクセス)
+# # * clipboard (クリップボードの読み書き)
+# # * camera (カメラから写真やビデオの取得)
+# # * microphone (マイクで録音)
+# #
+# # ネットワークを使う場合 `bpy.app.online_access` を忘れずにチェックすること
+# # https://docs.blender.org/manual/en/dev/advanced/extensions/addons.html#internet-access
+# #
+# # 上記のリソースの利用許可を得る場合に、そのリソースへのアクセスが必要な理由を書くこと
+# # 短い１文で記述し最後にピリオドをつけないこと
+# # 長い説明が必要な場合はドキュメントや詳細ページを使うこと
+#
+# [permissions]
+files = "撮影したスクリーンショットを保存する"
