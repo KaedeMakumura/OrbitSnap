@@ -1,4 +1,5 @@
 import datetime
+import bpy
 from dataclasses import dataclass, field
 from .property_group import ORBITSNAP_PR_MainSettings
 
@@ -24,6 +25,7 @@ class CaptureSettings:
     """
 
     datetime: datetime
+    directory: str
     resolution_x: int = 1920
     resolution_y: int = 1080
     sensor_width: float = 36.0
@@ -49,6 +51,11 @@ class CaptureSettings:
         Returns:
             CaptureSettings: 設定クラスのインスタンス
         """
+        # フォルダの絶対パス化
+        save_dir = props.directory or "//"
+        abs_save_dir = bpy.path.abspath(save_dir)
+
+        # 仰角リストを初期化
 
         elevation_angles = []
         if props.use_angle_0:   elevation_angles.append(0)
@@ -73,6 +80,7 @@ class CaptureSettings:
 
         return cls(
             datetime=datetime.datetime.now(),
+            directory=abs_save_dir,
             focal_length=props.focal_length,
             margin_scale=props.margin_scale,
             shot_angle_list=shot_angle_list,

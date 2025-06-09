@@ -41,8 +41,7 @@ class OrbitSnapManager:
         ViewStateManager.set_overlay_visibility(self.area, False)
 
         timestamp = self.settings.datetime.strftime("%Y%m%d_%H%M%S")
-        blend_dir = bpy.path.abspath("//")
-        self.save_dir = os.path.join(blend_dir, f"capture_{timestamp}")
+        self.save_dir = os.path.join(self.settings.directory, f"capture_{timestamp}")
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.blend_name = bpy.path.basename(bpy.data.filepath).replace(".blend", "")
