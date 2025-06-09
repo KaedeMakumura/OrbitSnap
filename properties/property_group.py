@@ -2,6 +2,12 @@ import bpy
 from bpy.props import IntProperty, FloatProperty, BoolProperty, EnumProperty, StringProperty
 
 class ORBITSNAP_PR_MainSettings(bpy.types.PropertyGroup):
+    directory: StringProperty(
+        name="保存フォルダ",
+        description="スクリーンショットの保存先を選んでください｡",
+        subtype="DIR_PATH",
+        default="//"
+    )
     focal_length: IntProperty(name="Focal Length (mm)", default=50, min=28, max=150)
     margin_scale: FloatProperty(name="Margin Scale", default=1.3, min=0.5, max=2.0)
 

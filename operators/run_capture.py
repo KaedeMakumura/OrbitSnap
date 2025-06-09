@@ -1,5 +1,5 @@
 import bpy
-
+import os
 from ..core.capture_manager import OrbitSnapManager
 from ..core.watermark import Watermark
 from ..properties.capture_settings import CaptureSettings
@@ -43,6 +43,11 @@ class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
         # --- 設定とマネージャーの準備 ---
         try:
             self.settings = CaptureSettings.from_props(props=props)
+            # 保存先存在チェック
+            if not os.path.isdir(self.settings.directory):
+                self.report({'WARNING'}, "指定されたフォルダが存在しません: ")
+                return {'CANCELLED'}
+
             self.writer = Watermark(settings=self.settings)
             self._manager = OrbitSnapManager(area, selected_objects, self.settings)
             self._manager.prepare() # ここでカメラ作成、視点変更などを行う
