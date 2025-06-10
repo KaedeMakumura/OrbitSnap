@@ -73,7 +73,6 @@ class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
             return {'FINISHED'}
 
         except Exception as e:
-            print(f"撮影中にエラー発生: {e}")
             self.report({'ERROR'}, f"撮影中にエラーが発生しました: {e}")
             self._cleanup() # エラー時もクリーンアップして終了
             return {'CANCELLED'}
@@ -90,8 +89,6 @@ class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
         # 変数リセット (念のため)
         self.settings = None
         self._manager = None
-
-        print("クリーンアップ完了")
 
 
 def register():
