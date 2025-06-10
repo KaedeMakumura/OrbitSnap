@@ -71,8 +71,7 @@ class OrbitSnapManager:
         empties = [obj for obj in objects if obj.type == 'EMPTY' and obj.empty_display_type == 'CUBE']
         normals = [obj for obj in objects if not (obj.type == 'EMPTY' and obj.empty_display_type == 'CUBE')]
         if empties:
-            if len(empties) > 1:
-                print("Warning: 複数のEmptyCubeがありますが、最初の1つだけを使います。")
+            # emptycubeの最初の一つを使う
             return get_corners(empties[0])
         else:
             all_corners = []
@@ -129,8 +128,7 @@ class OrbitSnapManager:
             x = v.dot(right)
             y = v.dot(up)
             screen_coords.append([x, y])
-        # デバッグ表示
-        print("screen_coords (on camera plane):", screen_coords)
+
         xs = [pt[0] for pt in screen_coords]
         ys = [pt[1] for pt in screen_coords]
         width = max(xs) - min(xs)

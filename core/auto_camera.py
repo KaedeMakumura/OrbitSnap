@@ -59,4 +59,3 @@ class AutoCamera:
         to_remove = [obj for obj in bpy.context.scene.objects if obj.get(AutoCamera.CUSTOM_KEY)]
         for obj in to_remove:
             bpy.data.objects.remove(obj, do_unlink=True)
-        print(f"🧹 OrbitSnapオブジェクト削除完了: {len(to_remove)}個")

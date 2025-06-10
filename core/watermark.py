@@ -43,9 +43,8 @@ class Watermark:
         # 画像を開く
         try:
             img = Image.open(filepath).convert("RGBA")
-        except FileNotFoundError:
-            print(f"ファイルが見つかりません: {filepath}")
-            return
+        except FileNotFoundError as e:
+            raise e
 
         # 透明レイヤーを作成
         txt_layer = Image.new("RGBA", img.size, (255,255,255,0))
