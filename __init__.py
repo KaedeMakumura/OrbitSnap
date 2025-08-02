@@ -1,13 +1,3 @@
-bl_info = {
-    "name": "Orbit Snap",
-    "author": "Kaede Makimura",
-    "version": (0, 1, 0),
-    "blender": (4, 2, 0),
-    "location": "View3D > Sidebar > OrbitSnap Tab",
-    "description": "自動撮影ツール",
-    "category": "3D View",
-}
-
 import bpy
 import os
 # モジュールをインポート

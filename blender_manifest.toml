@@ -3,7 +3,7 @@ schema_version = "1.0.0"
 id = "OrbitSnap"
 version = "0.1.0"
 name = "Orbit Snap"
-tagline = "capture mult angle screenshots"
+tagline = "capture multi angle screenshots"
 maintainer = "Kaede Makimura<email@address.com>"
 
 # "add-on" か "theme" のみサポート
