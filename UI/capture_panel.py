@@ -60,6 +60,9 @@ class ORBITSNAP_PT_Panel(bpy.types.Panel):
         row4.prop(props, "note")
 
         layout.separator()
+        layout.prop(props, "open_folder_after_capture")
+
+        layout.separator()
         layout.operator("orbitsnap.run_capture", text="Shot Orbit Snap", icon="RENDER_STILL")
 
 def register():

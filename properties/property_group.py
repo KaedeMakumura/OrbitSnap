@@ -45,6 +45,7 @@ class ORBITSNAP_PR_MainSettings(bpy.types.PropertyGroup):
     w_note: BoolProperty(name="note", default=False)
     note: StringProperty(name="Note Text", default="")
 
+    open_folder_after_capture: BoolProperty(name="Open Folder After Capture", default=False)
 
 def register():
     bpy.utils.register_class(ORBITSNAP_PR_MainSettings)

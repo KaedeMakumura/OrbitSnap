@@ -46,6 +46,9 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 - elevation_angle:撮影時の仰角
 - note:Note Textに書かれた文字列
 
+### Open Folder After Snap
+撮影終了後､スクリーンショットを保存したフォルダを開くかどうかを選択できます｡
+
 ---
 
 ## 使い方
@@ -96,5 +99,7 @@ cubeの範囲が収まるように撮影されるので､オブジェクトを�
 - v0.1.1 – 2025-06-09
   保存先選択機能の追加
 
+- v0.1.2 – 2025-08-03
+  撮影後保存フォルダを開く(windowsのみ)
 ---
 
