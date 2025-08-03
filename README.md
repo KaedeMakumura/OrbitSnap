@@ -24,6 +24,9 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 
 ## 設定項目
 
+### 保存フォルダ
+撮影したスクリーンショットを保存するフォルダを指定します｡
+
 ### Focal Length
 撮影するカメラの焦点距離です｡28mmから150mmを指定できます｡
 
@@ -53,7 +56,7 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 
 ## 使い方
 「Shot Orbit Snap」をクリックすれば撮影が始まります｡
-撮影されたスクリーンショットはblenderファイルの階層にフォルダを生成後､自動的に保存されます｡
+指定したフォルダに新しいフォルダを作成し､スクリーンショットを保存します｡
 
 撮影方法は2種類あります｡
 
