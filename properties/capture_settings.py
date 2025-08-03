@@ -39,6 +39,7 @@ class CaptureSettings:
     w_orbit_angle: bool = False
     w_elevation_angle: bool = False
     w_note: bool = False
+    open_folder_after_capture:bool = False
     note: str = ""
 
     @classmethod
@@ -91,4 +92,5 @@ class CaptureSettings:
             w_elevation_angle=props.w_elevation_angle,
             w_note=props.w_note,
             note=props.note,
+            open_folder_after_capture=props.open_folder_after_capture,
         )

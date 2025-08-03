@@ -67,6 +67,10 @@ class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
                 filepath = self._manager.capture(x_angle, z_angle)
                 self.writer.draw(filepath=filepath, orbit_angle=z_angle, elevation_angle=x_angle)
 
+            # フォルダを開く
+            if self.settings.open_folder_after_capture:
+                os.startfile(self._manager.save_dir)
+
             # 後片付け
             self.report({'INFO'}, "全キャプチャ完了！")
             self._cleanup()
