@@ -79,6 +79,29 @@ class OrbitSnapManager:
                 all_corners.extend(get_corners(obj))
             return all_corners
 
+    def aabb_center_and_size(self, points):
+        """指定されたポイントの中心を返す
+
+        Args:
+            points (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        xs = [p.x for p in points]
+        ys = [p.y for p in points]
+        zs = [p.z for p in points]
+        minx, maxx = min(xs), max(xs)
+        miny, maxy = min(ys), max(ys)
+        minz, maxz = min(zs), max(zs)
+
+        # 各座標の最大値と最小値を使って中心を計算
+        center = mathutils.Vector((
+            (minx + maxx) * 0.5,
+            (miny + maxy) * 0.5,
+            (minz + maxz) * 0.5,
+        ))
+        return center
 
     def calc_capture_info(self, objects):
         """選択されたオブジェクトが画角に収まる距離を計算する"""
@@ -92,9 +115,8 @@ class OrbitSnapManager:
         margin_scale = self.settings.margin_scale
         corners = self.get_scene_corners(objects)
 
-
         # バウンディングボックス8点
-        center = sum(corners, mathutils.Vector()) / len(corners)
+        center = self.aabb_center_and_size(corners)
 
         max_distance = 0
         for angle in self.settings.shot_angle_list:
