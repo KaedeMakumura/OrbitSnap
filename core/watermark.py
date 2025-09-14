@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 class Watermark:
     settings: CaptureSettings
     font: ImageFont
-    x: int = 10
+    x: int = 20
     y: int = 10
     outline_color = (0, 0, 0, 200)
     fill_color = (255, 255, 255, 200)
