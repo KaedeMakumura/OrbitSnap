@@ -1,4 +1,5 @@
 import bpy
+from ..core.props_access import get_ui_props
 
 class ORBITSNAP_PT_Panel(bpy.types.Panel):
     bl_label = "Orbit Snap"
@@ -9,7 +10,11 @@ class ORBITSNAP_PT_Panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.orbit_snap_props
+        # Prefer WindowManager-scoped UI props for responsive editing
+        props, source = get_ui_props(context)
+        if props is None:
+            layout.label(text="OrbitSnap props not available")
+            return
 
         #保存フォルダ
         layout.prop(props, "directory")

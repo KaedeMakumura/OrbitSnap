@@ -2,6 +2,8 @@ import bpy
 from bpy.props import IntProperty, FloatProperty, BoolProperty, EnumProperty, StringProperty
 
 class ORBITSNAP_PR_MainSettings(bpy.types.PropertyGroup):
+    # Internal flag to detect if Scene has persisted values
+    initialized: BoolProperty(name="__initialized__", default=False, options={'HIDDEN'})
     directory: StringProperty(
         name="保存フォルダ",
         description="スクリーンショットの保存先を選んでください｡",

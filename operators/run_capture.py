@@ -3,6 +3,7 @@ import os
 from ..core.capture_manager import OrbitSnapManager
 from ..core.watermark import Watermark
 from ..properties.capture_settings import CaptureSettings
+from ..core.props_access import copy_ui_to_scene, get_scene_props
 
 class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
     bl_idname = "orbitsnap.run_capture"
@@ -15,7 +16,12 @@ class ORBITSNAP_OT_RunCapture(bpy.types.Operator):
     writer: Watermark = None
 
     def execute(self, context):
-        props = context.scene.orbit_snap_props
+        # Read from WM for snappy UI. Copy to Scene for persistence.
+        if not copy_ui_to_scene(context):
+            self.report({'ERROR'}, "OrbitSnap properties not found")
+            return {'CANCELLED'}
+
+        props = get_scene_props(context)
 
         # Eeveeだけ(Cyclesでの描画が遅いのでスクショしても何も映らない)
         engine = context.scene.render.engine
