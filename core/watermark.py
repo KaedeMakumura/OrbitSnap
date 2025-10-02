@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 from ..properties.capture_settings import CaptureSettings
 from ..utils.utils import get_font_path
 
@@ -9,14 +9,27 @@ from PIL import Image, ImageDraw, ImageFont
 class Watermark:
     settings: CaptureSettings
     font: ImageFont
-    x: int = 20
-    y: int = 10
+    x: int
+    y: int
+    stroke_width: float
     outline_color = (0, 0, 0, 200)
     fill_color = (255, 255, 255, 200)
     font_size = 32
 
+    QUALITY_PRESETS = {
+        "high": {"font_size": 32, "x": 24, "y": 12, "stroke_width": 2},
+        "middle": {"font_size": 20, "x": 16, "y": 9, "stroke_width": 1.5},
+        "low": {"font_size": 14, "x": 10, "y": 5, "stroke_width": 1},
+    }
+
     def __init__(self, settings: CaptureSettings):
         self.settings = settings
+
+        preset = self.QUALITY_PRESETS.get(settings.quality, self.QUALITY_PRESETS["middle"])
+        self.font_size = preset["font_size"]
+        self.x = preset["x"]
+        self.y = preset["y"]
+        self.stroke_width = preset["stroke_width"]
 
         # フォントパス
         font_path = get_font_path()
@@ -51,7 +64,7 @@ class Watermark:
         draw = ImageDraw.Draw(txt_layer)
 
         # --- 縁取りを描く ---
-        draw.multiline_text((self.x, self.y), text, font=self.font, fill=self.fill_color, stroke_width=2, stroke_fill=self.outline_color)
+        draw.multiline_text((self.x, self.y), text, font=self.font, fill=self.fill_color, stroke_width=self.stroke_width, stroke_fill=self.outline_color)
 
         # レイヤー合成
         combined = Image.alpha_composite(img, txt_layer)

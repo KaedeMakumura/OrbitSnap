@@ -26,8 +26,9 @@ class CaptureSettings:
 
     datetime: datetime
     directory: str
-    resolution_x: int = 1920
-    resolution_y: int = 1080
+    quality: str = 'middle'
+    resolution_x: int = 1280
+    resolution_y: int = 720
     sensor_width: float = 36.0
     sensor_height: float = 24.0
     focal_length: float = 50
@@ -56,6 +57,18 @@ class CaptureSettings:
         save_dir = props.directory or "//"
         abs_save_dir = bpy.path.abspath(save_dir)
 
+        # 画質の設定
+        quality = props.quality
+        if props.quality == 'high':
+            resolution_x = 1920
+            resolution_y = 1080
+        elif props.quality == 'middle':
+            resolution_x = 1280
+            resolution_y = 720
+        elif props.quality == 'low':
+            resolution_x = 854
+            resolution_y = 480
+
         # 仰角リストを初期化
 
         elevation_angles = []
@@ -82,6 +95,9 @@ class CaptureSettings:
         return cls(
             datetime=datetime.datetime.now(),
             directory=abs_save_dir,
+            quality=quality,
+            resolution_x=resolution_x,
+            resolution_y=resolution_y,
             focal_length=props.focal_length,
             margin_scale=props.margin_scale,
             shot_angle_list=shot_angle_list,

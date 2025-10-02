@@ -20,6 +20,11 @@ class ORBITSNAP_PT_Panel(bpy.types.Panel):
         layout.prop(props, "directory")
         layout.separator()
 
+        # 画質
+        row = layout.row(align=True)
+        row.label(text="quality")
+        row.prop(props, "quality", text="")
+
         # 焦点距離とマージン
         layout.prop(props, "focal_length")
         layout.prop(props, "margin_scale")

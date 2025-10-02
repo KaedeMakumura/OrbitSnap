@@ -5,12 +5,24 @@ class ORBITSNAP_PR_MainSettings(bpy.types.PropertyGroup):
     # Internal flag to detect if Scene has persisted values
     initialized: BoolProperty(name="__initialized__", default=False, options={'HIDDEN'})
     directory: StringProperty(
-        name="保存フォルダ",
+        name="Folder",
         description="スクリーンショットの保存先を選んでください｡",
         subtype="DIR_PATH",
         default="//",
         options={'PATH_SUPPORTS_BLEND_RELATIVE'},
     )
+
+    quality: EnumProperty(
+        name="Quality",
+        description="画質",
+        items=[
+            ('high', "high", "1920x1080"),
+            ('middle', "middle", "1280x720"),
+            ('low', "low", "854x480"),
+        ],
+        default='middle'
+    )
+
     focal_length: IntProperty(name="Focal Length (mm)", default=50, min=28, max=150)
     margin_scale: FloatProperty(name="Margin Scale", default=1.3, min=0.5, max=2.0)
 
