@@ -1,5 +1,5 @@
 # OrbitSnap
-OrbitSnap is a Blender add-on that makes it easy to capture images from all around your 3D models
+OrbitSnap is a Blender Extension that makes it easy to capture images from all around your 3D models
 
 ## 概要
 
@@ -9,9 +9,8 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 
 ## インストール方法
 1. [ダウンロードページ](https://github.com/KaedeMakumura/OrbitSnap/releases)から､最新のzipファイルをダウンロードしてください｡
-2. blenderのメニューバー > 編集 > プリファレンス > エクステンションを入手の画面を開きます｡
-3. 右上のエクステンション設定(下向きの矢印)をクリックして､【ディスクからインストール】を選択し､ダウンロードしたzipファイルを選択します｡
-4. インストールが成功すれば､NパネルにOrbitSnapが追加されます｡
+2. blenderを開いて､zipファイルをドラッグ・アンド・ドロップしてください｡
+3. インストールが成功すれば､NパネルにOrbitSnapが追加されます｡
 
 ## 設定項目
 
@@ -43,7 +42,7 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 - elevation_angle:撮影時の仰角
 - note:Note Textに書かれた文字列
 
-### Open Folder After Snap
+### Open Folder After Capture
 撮影終了後､スナップショットを保存したフォルダを開くかどうかの設定です｡
 
 
@@ -60,7 +59,7 @@ OrbitSnap is a Blender add-on that makes it easy to capture images from all arou
 
 ### 撮影方法2:フリー撮影
 empty cubeを選択した状態で撮影することができます｡
-cubeの範囲が収まるように撮影されるので､オブジェクトをマージしてしまった後でも一部をアップにして撮影したり､逆に全体の撮影をしたりすることが可能です｡
+cubeの範囲が収まるように撮影されるので､オブジェクトをマージしてしまった後でも一部をアップにして撮影することが可能です｡
 ※フリー撮影は複数オブジェクト選択に対応していません｡
 
 
