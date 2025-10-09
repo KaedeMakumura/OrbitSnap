@@ -2,6 +2,7 @@
 OrbitSnap is a Blender Extension that makes it easy to capture images from all around your 3D models
 
 ## 概要
+[!['スナップショットが簡単に撮影できるblenderのExtension OrbitSnapの紹介'](https://github.com/user-attachments/assets/7c1b5bce-3fb6-42ce-9c96-408c4fc8616c)](https://www.youtube.com/watch?v=diSg8RvhwL0)
 
 選択したオブジェクトをワンクリックで様々な角度から自動撮影するBlenderアドオンです。
 毎回同じ条件で進捗や状態を撮影することができます。
