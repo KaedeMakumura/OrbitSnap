@@ -20,6 +20,11 @@ class ORBITSNAP_PT_Panel(bpy.types.Panel):
         layout.prop(props, "directory")
         layout.separator()
 
+        # 縦横比
+        row = layout.row(align=True)
+        row.label(text="aspect ratio")
+        row.prop(props, "aspect_ratio", text="")
+
         # 画質
         row = layout.row(align=True)
         row.label(text="quality")

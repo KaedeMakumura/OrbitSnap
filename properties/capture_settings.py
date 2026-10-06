@@ -27,6 +27,7 @@ class CaptureSettings:
     datetime: datetime
     directory: str
     quality: str = 'middle'
+    aspect_ratio: str = 'landscape'
     resolution_x: int = 1280
     resolution_y: int = 720
     sensor_width: float = 36.0
@@ -43,6 +44,24 @@ class CaptureSettings:
     open_folder_after_capture:bool = False
     note: str = ""
 
+    ASPECT_PRESETS = {
+        "landscape": {
+            "high":{"x": 1920, "y": 1080},
+            "middle":{"x": 1280, "y": 720},
+            "low":{"x": 854, "y": 480},
+        },
+        "portrait": {
+            "high":{"x": 1080, "y": 1920},
+            "middle":{"x": 720, "y": 1280},
+            "low":{"x": 480, "y": 854},
+        },
+        "square": {
+            "high":{"x": 1080, "y": 1080},
+            "middle":{"x": 720, "y": 720},
+            "low":{"x": 480, "y": 480},
+        }
+    }
+
     @classmethod
     def from_props(cls, props: ORBITSNAP_PR_MainSettings):
         """blenderのプロパティから設定クラスを生成するファクトリメソッド
@@ -57,17 +76,13 @@ class CaptureSettings:
         save_dir = props.directory or "//"
         abs_save_dir = bpy.path.abspath(save_dir)
 
-        # 画質の設定
-        quality = props.quality
-        if props.quality == 'high':
-            resolution_x = 1920
-            resolution_y = 1080
-        elif props.quality == 'middle':
-            resolution_x = 1280
-            resolution_y = 720
-        elif props.quality == 'low':
-            resolution_x = 854
-            resolution_y = 480
+        # 画質・縦横比の設定
+        quality = props.quality or "middle"
+        aspect_ratio = props.aspect_ratio or "landscape"
+        aspect_dict = cls.ASPECT_PRESETS.get(props.aspect_ratio, cls.ASPECT_PRESETS["landscape"])
+        resolution = aspect_dict.get(quality, aspect_dict["middle"])
+        resolution_x = resolution["x"]
+        resolution_y = resolution["y"]
 
         # 仰角リストを初期化
 
@@ -96,8 +111,11 @@ class CaptureSettings:
             datetime=datetime.datetime.now(),
             directory=abs_save_dir,
             quality=quality,
+            aspect_ratio=aspect_ratio,
             resolution_x=resolution_x,
             resolution_y=resolution_y,
+            sensor_width=cls.sensor_width,
+            sensor_height=cls.sensor_height,
             focal_length=props.focal_length,
             margin_scale=props.margin_scale,
             shot_angle_list=shot_angle_list,

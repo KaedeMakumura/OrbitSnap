@@ -29,6 +29,8 @@ class AutoCamera:
         # 焦点距離とセンサー幅を設定する
         self.camera_obj.data.lens = self.settings.focal_length
         self.camera_obj.data.sensor_width = self.settings.sensor_width
+        self.camera_obj.data.sensor_height = self.settings.sensor_height
+        self.camera_obj.data.sensor_fit = 'AUTO'
         self.camera_obj.data.type = 'PERSP'
 
         bpy.context.scene.camera = self.camera_obj
@@ -43,19 +45,31 @@ class AutoCamera:
     def place_camera(self, x_angle: float, z_angle: float):
         loc = self.calculate_camera_location(x_angle, z_angle)
         self.camera_obj.location = loc
-        direction = self.center_point - self.camera_obj.location
-        self.camera_obj.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+        self.camera_obj.rotation_euler = self.rotation_for_angles(x_angle, z_angle).to_euler()
 
 
     def calculate_camera_location(self, x_angle: float, z_angle: float):
-        rot_x = mathutils.Matrix.Rotation(math.radians(-x_angle), 4, 'X')
-        rot_z = mathutils.Matrix.Rotation(math.radians(z_angle), 4, 'Z')
-        offset = rot_z @ rot_x @ mathutils.Vector((0, -self.distance, 0))
-        return self.center_point + offset
+        return self.center_point + self.orbit_offset(x_angle, z_angle) * self.distance
 
     @staticmethod
-    def remove_camera_and_empty():
+    def orbit_offset(x_angle: float, z_angle: float):
+        """x_angleは仰角、z_angleはワールドZ軸まわりの周回角。"""
+        rot_x = mathutils.Matrix.Rotation(math.radians(-x_angle), 4, 'X')
+        rot_z = mathutils.Matrix.Rotation(math.radians(z_angle), 4, 'Z')
+        return rot_z @ rot_x @ mathutils.Vector((0, -1, 0))
+
+    @staticmethod
+    def rotation_for_angles(x_angle, z_angle):
+        return (-AutoCamera.orbit_offset(x_angle, z_angle)).to_track_quat('-Z', 'Y')
+
+    def remove_camera_and_empty(self):
         """カメラとエンプティをシーンから削除する"""
-        to_remove = [obj for obj in bpy.context.scene.objects if obj.get(AutoCamera.CUSTOM_KEY)]
-        for obj in to_remove:
+        for obj in (self.camera_obj, self.empty_obj):
+            if obj is None:
+                continue
+            data = obj.data if obj.type == 'CAMERA' else None
             bpy.data.objects.remove(obj, do_unlink=True)
+            if data is not None and data.users == 0:
+                bpy.data.cameras.remove(data)
+        self.camera_obj = None
+        self.empty_obj = None

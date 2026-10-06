@@ -19,29 +19,10 @@ class ObjectCornerProvider(CornerProvider):
 # エンプティCube用
 class EmptyCubeCornerProvider(CornerProvider):
     def get_corners(self, obj):
-        # === エンプティの情報を取得 ===
-        scale = obj.scale
-        empty_display_size = obj.empty_display_size
-
-        # 表示サイズとスケールを考慮して実際の直方体サイズを求める（直径扱いに補正）
-        size_x = scale.x * empty_display_size
-        size_y = scale.y * empty_display_size
-        size_z = scale.z * empty_display_size
-
-        half = mathutils.Vector((size_x, size_y, size_z))  # 半サイズ＝±で定義する
-
-        offsets = [
-            (-half.x, -half.y, -half.z),
-            (-half.x, -half.y,  half.z),
-            (-half.x,  half.y, -half.z),
-            (-half.x,  half.y,  half.z),
-            ( half.x, -half.y, -half.z),
-            ( half.x, -half.y,  half.z),
-            ( half.x,  half.y, -half.z),
-            ( half.x,  half.y,  half.z),
-        ]
-
-        corners = [obj.location + mathutils.Vector(offset) for offset in offsets]
+        # 回転と親オブジェクトの変換を含め、ワールド座標へ変換する。
+        size = obj.empty_display_size
+        corners = [obj.matrix_world @ mathutils.Vector((x * size, y * size, z * size))
+                   for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)]
 
         return corners
 
@@ -52,3 +33,25 @@ def get_corners(obj):
     else:
         provider = ObjectCornerProvider()
     return provider.get_corners(obj)
+
+
+def get_framing_points(objects, depsgraph):
+    """変形後の形状を一度取得する。Empty Cubeを選択していれば、その範囲を優先する。"""
+    for obj in objects:
+        if obj.type == 'EMPTY' and obj.empty_display_type == 'CUBE':
+            return get_corners(obj)
+    points = []
+    for obj in objects:
+        evaluated = obj.evaluated_get(depsgraph)
+        if obj.type in {'MESH', 'CURVE', 'SURFACE', 'FONT', 'META'}:
+            try:
+                mesh = evaluated.to_mesh()
+                if mesh is not None:
+                    points.extend(evaluated.matrix_world @ vertex.co for vertex in mesh.vertices)
+            finally:
+                evaluated.to_mesh_clear()
+        else:
+            # ライト・カメラ・通常のエンプティは撮影範囲を決める境界ボックスを持たない。
+            if obj.type not in {'EMPTY', 'LIGHT', 'CAMERA'}:
+                points.extend(get_corners(evaluated))
+    return points

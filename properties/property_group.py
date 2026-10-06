@@ -23,8 +23,22 @@ class ORBITSNAP_PR_MainSettings(bpy.types.PropertyGroup):
         default='middle'
     )
 
+    aspect_ratio: EnumProperty(
+        name="Aspect Ratio",
+        description="撮影画像の縦横比",
+        items=[
+            ('landscape', "Landscape", "16:9"),
+            ('portrait', "Portrait", "9:16"),
+            ('square', "Square", "1:1"),
+        ],
+        default='landscape'
+    )
+
     focal_length: IntProperty(name="Focal Length (mm)", default=50, min=28, max=150)
-    margin_scale: FloatProperty(name="Margin Scale", default=1.3, min=0.5, max=2.0)
+    margin_scale: FloatProperty(
+        name="Margin Scale", default=1.1, min=0.5, max=2.0,
+        description="1.0で画角内に収めます。大きくすると余白が増え、1.0未満では見切れを許容します",
+    )
 
     orbit_step: EnumProperty(
         name="Orbit Step",

@@ -1,13 +1,12 @@
 import bpy
 import mathutils
-import math
 import os
 from ..core.auto_camera import AutoCamera
-from ..object.corner_provider import get_corners
+from ..object.corner_provider import get_framing_points
 from ..utils.view_state_manager import ViewStateManager
 from ..properties.capture_settings import CaptureSettings
+from .framing import required_distance
 
-import bpy
 
 class OrbitSnapManager:
     def __init__(self, area, selected_objects, settings: CaptureSettings):
@@ -20,6 +19,9 @@ class OrbitSnapManager:
         self.saved_views        = None # 撮影直前のビュー情報を保持
         self.visible_overlay    = None # 撮影直前のオーバーレイの表示状態を保持
         self.shot_count = 0
+        self.saved_render = None
+        self.saved_camera = None
+        self.saved_space_camera = None
 
     def prepare(self):
         """
@@ -34,6 +36,12 @@ class OrbitSnapManager:
 
         """
         # 現在のビューの状態を記録｡処理終了後にこの視点に戻すため｡
+        scene = bpy.context.scene
+        self.saved_camera = scene.camera
+        self.saved_space_camera = self.area.spaces.active.camera
+        render = scene.render
+        self.saved_render = (render.resolution_x, render.resolution_y,
+                             render.resolution_percentage, render.filepath)
         self.saved_views = ViewStateManager.get_view_state(self.area)
         self.visible_overlay = ViewStateManager.get_overlay_visibility(self.area)
 
@@ -46,10 +54,12 @@ class OrbitSnapManager:
 
         self.blend_name = bpy.path.basename(bpy.data.filepath).replace(".blend", "")
 
-        center_point, distance = self.calc_capture_info(self.selected_objects)
-
-        self.camera_controller = AutoCamera(center_point, distance, self.settings)
+        self.camera_controller = AutoCamera(mathutils.Vector((0, 0, 0)), 1, self.settings)
         self.camera_controller.create_camera_and_empty()
+        center_point, distance = self.calc_capture_info(self.selected_objects)
+        self.camera_controller.center_point = center_point
+        self.camera_controller.distance = distance
+        self.camera_controller.empty_obj.location = center_point
 
         # スクリーンショット用に視点を変更
         ViewStateManager.switch_to_camera_view(self.area)
@@ -67,106 +77,45 @@ class OrbitSnapManager:
         self.shot_count += 1 # ショット数をインクリメント
         return filepath # 撮影したファイルパスを返す
 
-    def get_scene_corners(self, objects):
-        empties = [obj for obj in objects if obj.type == 'EMPTY' and obj.empty_display_type == 'CUBE']
-        normals = [obj for obj in objects if not (obj.type == 'EMPTY' and obj.empty_display_type == 'CUBE')]
-        if empties:
-            # emptycubeの最初の一つを使う
-            return get_corners(empties[0])
-        else:
-            all_corners = []
-            for obj in normals:
-                all_corners.extend(get_corners(obj))
-            return all_corners
-
-    def aabb_center_and_size(self, points):
-        """指定されたポイントの中心を返す
-
-        Args:
-            points (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        xs = [p.x for p in points]
-        ys = [p.y for p in points]
-        zs = [p.z for p in points]
-        minx, maxx = min(xs), max(xs)
-        miny, maxy = min(ys), max(ys)
-        minz, maxz = min(zs), max(zs)
-
-        # 各座標の最大値と最小値を使って中心を計算
-        center = mathutils.Vector((
-            (minx + maxx) * 0.5,
-            (miny + maxy) * 0.5,
-            (minz + maxz) * 0.5,
-        ))
-        return center
-
     def calc_capture_info(self, objects):
         """選択されたオブジェクトが画角に収まる距離を計算する"""
 
         if not objects:
             raise ValueError("オブジェクトリストが空です")
+        points = get_framing_points(objects, bpy.context.evaluated_depsgraph_get())
+        if not points:
+            raise ValueError("撮影対象の形状を取得できません")
+        if not self.settings.shot_angle_list:
+            raise ValueError("撮影角度が設定されていません")
+        center = mathutils.Vector(tuple(
+            (min(p[axis] for p in points) + max(p[axis] for p in points)) / 2
+            for axis in range(3)))
+        relative_points = [point - center for point in points]
 
-        sensor_width = self.settings.sensor_width
-        sensor_height = self.settings.sensor_height
-        focal_length = self.settings.focal_length
-        margin_scale = self.settings.margin_scale
-        corners = self.get_scene_corners(objects)
-
-        # バウンディングボックス8点
-        center = self.aabb_center_and_size(corners)
-
-        max_distance = 0
-        for angle in self.settings.shot_angle_list:
-            x_angle = math.radians(angle[0])  # 水平（azimuth, yaw）
-            z_angle = math.radians(angle[1])  # 仰角（elevation, pitch）
-
-            # カメラ向き
-            dir_x = math.cos(z_angle) * math.cos(x_angle)
-            dir_y = math.cos(z_angle) * math.sin(x_angle)
-            dir_z = math.sin(z_angle)
-            direction = mathutils.Vector((dir_x, dir_y, dir_z)).normalized()
-            up = mathutils.Vector((0, 0, 1))
-            cam_pos = center + direction * 10
-            width, height = self.get_bbox_size_in_camera_view(cam_pos, direction, up, corners)
-            distance = self.calculate_required_distance(width, height, sensor_width, sensor_height, focal_length, margin_scale)
-            max_distance = max(max_distance, distance)
-
-        return center, max_distance
-
-
-    def get_bbox_size_in_camera_view(self, cam_pos, cam_dir, cam_up, corners):
-        # カメラ平面ベクトル
-        forward = cam_dir.normalized()
-        right = cam_up.cross(forward).normalized()
-        up = forward.cross(right).normalized()
-
-        # 各頂点を「カメラのスクリーン平面（right, up）」で直交射影
-        screen_coords = []
-        for corner in corners:
-            v = corner - cam_pos
-            x = v.dot(right)
-            y = v.dot(up)
-            screen_coords.append([x, y])
-
-        xs = [pt[0] for pt in screen_coords]
-        ys = [pt[1] for pt in screen_coords]
-        width = max(xs) - min(xs)
-        height = max(ys) - min(ys)
-        return width, height
-
-    def calculate_required_distance(self, width, height, sensor_width, sensor_height, focal_length, margin_scale):
-        fov_x = 2 * math.atan(sensor_width / (2 * focal_length))
-        fov_y = 2 * math.atan(sensor_height / (2 * focal_length))
-        dist_x = (width / 2) / math.tan(fov_x / 2)
-        dist_y = (height / 2) / math.tan(fov_y / 2)
-        return max(dist_x, dist_y) * margin_scale
+        # Blenderの画角にはセンサーフィット・解像度・ピクセル比が反映される。
+        camera = self.camera_controller.camera_obj.data
+        frame = camera.view_frame(scene=bpy.context.scene)
+        horizontal_slope = max(abs(v.x / v.z) for v in frame)
+        vertical_slope = max(abs(v.y / v.z) for v in frame)
+        distance = 0.0
+        maximum_depth = 0.0
+        for elevation, orbit in self.settings.shot_angle_list:
+            rotation = AutoCamera.rotation_for_angles(elevation, orbit)
+            right = rotation @ mathutils.Vector((1, 0, 0))
+            up = rotation @ mathutils.Vector((0, 1, 0))
+            forward = rotation @ mathutils.Vector((0, 0, -1))
+            local_points = [(p.dot(right), p.dot(up), p.dot(forward))
+                            for p in relative_points]
+            distance = max(distance, required_distance(
+                local_points, horizontal_slope, vertical_slope,
+                self.settings.margin_scale, camera.clip_start))
+            maximum_depth = max(maximum_depth, max(p[2] for p in local_points))
+        camera.clip_end = max(camera.clip_end, (distance + maximum_depth) * 1.01)
+        return center, distance
 
     def cleanup(self):
         # オーバーレイを元に戻す
-        if self.visible_overlay:
+        if self.visible_overlay is not None:
             ViewStateManager.set_overlay_visibility(self.area, self.visible_overlay)
 
         # 撮影直前のビューに戻す
@@ -174,4 +123,11 @@ class OrbitSnapManager:
             ViewStateManager.set_view_state(self.area, self.saved_views)
 
         # 撮影用の要素をすべて削除する
-        AutoCamera.remove_camera_and_empty()
+        if self.camera_controller is not None:
+            self.camera_controller.remove_camera_and_empty()
+        if self.saved_render is not None:
+            scene = bpy.context.scene
+            scene.camera = self.saved_camera
+            self.area.spaces.active.camera = self.saved_space_camera
+            (scene.render.resolution_x, scene.render.resolution_y,
+             scene.render.resolution_percentage, scene.render.filepath) = self.saved_render
